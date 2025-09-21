@@ -1,0 +1,224 @@
+/* Estilos Gerais */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1px;
+    text-align: center;
+    font-size: 12px;
+}
+
+
+.banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 350px; 
+    text-align: center;
+    color: white; 
+    background-image: url('/imagens/banner.jpg');
+    background-size: cover;
+    background-position: center; 
+}
+
+/* Efeito de escurecimento */
+.banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1; 
+}
+
+.banner-content {
+    position: relative; 
+    z-index: 2;
+    max-width: 600px;
+    padding: 0 20px;
+}
+
+.banner-content h2 {
+    font-size: 2.5rem; 
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); 
+}
+
+.banner-content p {
+    font-size: 1.2rem; 
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+
+
+/* Seção do Catálogo */
+.catalog-section {
+    flex: 3;
+    min-width: 300px;
+}
+
+#filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+#filters input, #filters select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.product-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.product-card img {
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+.product-card h3 {
+    font-size: 1.1rem;
+    margin: 0.5rem 0;
+}
+
+.product-card .price {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.product-card button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+.product-card button:hover {
+    background-color: #0056b3;
+}
+
+/* Seção do Carrinho e Checkout */
+.cart-checkout-section {
+    flex: 1; 
+    min-width: 280px;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    align-self: flex-start;
+}
+
+#cart-items .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+#cart-items input[type="number"] {
+    width: 50px;
+}
+
+#cart-total {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    text-align: right;
+}
+
+/* Checkout */
+#checkout-form .form-group {
+    margin-bottom: 1rem;
+}
+#checkout-form label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+#checkout-form input {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#checkout-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+#checkout-form button:hover {
+    background-color: #218838;
+}
+#cep-message {
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+    display: block;
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    background-color: #333; 
+    color: #8892b0; 
+    padding: 3rem 0;
+    border-top: 1px solid #112240; 
+}
+
+
+.footer p {
+    margin-bottom: 0.2rem;
+}
+
+.footer a {
+    color: #007bff; 
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
