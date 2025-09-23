@@ -10,28 +10,23 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     class ECommerce {
-        // Construtor
         constructor() {
             this.products = productsData;
             this.cart = []; // Formato: [{ id, name, price, quantity }]
             this.init();
         }
 
-        // 1 - Inicia a montagem da página
         init() {
-            this.renderProducts(this.products); // 1.2 - Chamada da primeira função
-            this.populateCategoryFilter(); // 1.4 - Chamada da segunda função
-            this.setupEventListeners(); // 1.6 - Chamada da terceira função
+            this.renderProducts(this.products);
+            this.populateCategoryFilter();
+            this.setupEventListeners();
         }
 
-        // 1.3 - Renderização do catálogo
         renderProducts(productsToRender) {
             const catalog = document.getElementById('product-catalog');
-            catalog.innerHTML = ''; // Limpa o catálogo antes de renderizar
+            catalog.innerHTML = ''; 
 
-            // Laço que percorre cada produto da lista
             productsToRender.forEach(product => {
-                //Monta a div de acordo com os atributos do produto
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
@@ -41,15 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><small>Categoria: ${product.category}</small></p>
                     <button class="add-to-cart-btn" data-id="${product.id}">Adicionar ao Carrinho</button>
                 `;
-                // Anexa a div montada no HTML
                 catalog.appendChild(card);
             });
         }
 
-        // 1.5 - Organiza os Filtros
         populateCategoryFilter() {
             const categoryFilter = document.getElementById('category-filter');
-            // Cria uma lista com as categorias 
             const categories = [...new Set(this.products.map(p => p.category))];
             
             categories.forEach(category => {
@@ -60,23 +52,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 1.7 - Verifica os filtros e organiza de acordo com o selecionado
         setupEventListeners() {
             // Filtros e ordenação
             document.getElementById('search-input').addEventListener('input', () => this.applyFilters());
             document.getElementById('category-filter').addEventListener('change', () => this.applyFilters());
             document.getElementById('sort-filter').addEventListener('change', () => this.applyFilters());
 
-            // 2.1 - Botão de adicionar ao carrinho (usando delegação de eventos)
+            // Botão de adicionar ao carrinho
             document.getElementById('product-catalog').addEventListener('click', event => {
-                const target = event.target; // Elemento que foi clicado
-                // Verifica o ID do produto e adiciona no carrinho
-                if (target.classList.contains('add-to-cart-btn')) {
-                    this.addToCart(parseInt(target.dataset.id)); 
+                if (event.target.classList.contains('add-to-cart-btn')) {
+                    this.addToCart(parseInt(event.target.dataset.id));
                 }
             });
             
-            // Eventos do carrinho (remover, alterar quantidade)
+            // Eventos do carrinho
             document.getElementById('cart-items').addEventListener('click', event => {
                 if (event.target.classList.contains('remove-from-cart-btn')) {
                     this.removeFromCart(parseInt(event.target.dataset.id));
@@ -88,29 +77,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // 3.1 - Chamada do CEP
+            // CEP
             const cepInput = document.getElementById('cep');
             cepInput.addEventListener('keyup', (event) => this.handleCepInput(event));
+
+            // Abrir e fechar carrinho
+            const cartIcon = document.getElementById('cart-icon');
+            cartIcon.addEventListener('click', () => {
+                this.hideSuccessMessage();
+                this.toggleCart()
+            });
+            document.getElementById('close-cart-btn').addEventListener('click', () => this.closeCart());
             
+            // Finalizar compra
+            document.getElementById('checkout-form').addEventListener('submit', (event) => this.finalizePurchase(event));
+
+            // Botão "Comprar Novamente"
+            document.getElementById('new-purchase-btn').addEventListener('click', () => this.hideSuccessMessage());
+
         }
 
-        // 1.8 - Aplica o filtro caso seja acionado pela funcção setupEventListeners
         applyFilters() {
             let filteredProducts = [...this.products];
 
-            // Filtro por nome
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             if (searchTerm) {
                 filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
             }
 
-            // Filtro por categoria
             const selectedCategory = document.getElementById('category-filter').value;
             if (selectedCategory !== 'all') {
                 filteredProducts = filteredProducts.filter(p => p.category === selectedCategory);
             }
 
-            // Ordenação
             const sortOrder = document.getElementById('sort-filter').value;
             if (sortOrder === 'price-asc') {
                 filteredProducts.sort((a, b) => a.price - b.price);
@@ -121,9 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
             this.renderProducts(filteredProducts);
         }
 
-        // 2.2 Adiciona um produto ao carrinho
-        addToCart(productId) { 
-            const product = this.products.find(p => p.id === productId); 
+        addToCart(productId) {
+            const product = this.products.find(p => p.id === productId);
             const cartItem = this.cart.find(item => item.id === productId);
 
             if (cartItem) {
@@ -132,43 +130,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.cart.push({ ...product, quantity: 1 });
             }
             this.renderCart();
+            this.openCart(); // Abre o carrinho ao adicionar um item
         }
 
-        // Remove um produto do carrinho
         removeFromCart(productId) {
             this.cart = this.cart.filter(item => item.id !== productId);
             this.renderCart();
         }
 
-        // Atualiza a quantidade de um item no carrinho
         updateCartQuantity(productId, quantity) {
             const cartItem = this.cart.find(item => item.id === productId);
             if(cartItem && quantity > 0) {
                 cartItem.quantity = quantity;
             } else {
-                this.cart = this.cart.filter(item => item.id !== productId); // Remove se a quantidade for 0 ou inválida
+                this.cart = this.cart.filter(item => item.id !== productId);
             }
             this.renderCart();
         }
 
-        // 2.3 - Renderiza o carrinho
         renderCart() {
             const cartItemsContainer = document.getElementById('cart-items');
             const totalPriceEl = document.getElementById('total-price');
+            const cartItemCountEl = document.getElementById('cart-item-count');
             let total = 0;
+            let totalItems = 0;
 
-            //Verifica se o carrinho está vazio
             if (this.cart.length === 0) {
                 cartItemsContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
             } else {
-                // Se não estiver vazio, inicia um laço que percorre a lista do carrinho
                 cartItemsContainer.innerHTML = '';
                 this.cart.forEach(item => {
-                    // Verifica o preço e quantidade e adiciona ao total
                     const itemTotal = item.price * item.quantity;
                     total += itemTotal;
+                    totalItems += item.quantity;
 
-                    // Monta a div no HTML de acordo com os itens selecionados
                     const cartItemEl = document.createElement('div');
                     cartItemEl.className = 'cart-item';
                     cartItemEl.innerHTML = `
@@ -178,23 +173,41 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button class="remove-from-cart-btn" data-id="${item.id}">X</button>
                         </div>
                     `;
-                    // Anexa a div montada no HTML
                     cartItemsContainer.appendChild(cartItemEl);
                 });
             }
             totalPriceEl.textContent = total.toFixed(2);
+            cartItemCountEl.textContent = totalItems;
         }
 
-        // 3.2 - Manipulação do input de CEP
+        // Funções para controlar o carrinho
+        toggleCart() {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            cartSidebar.classList.toggle('open');
+            document.body.classList.toggle('cart-open');
+        }
+        
+        openCart() {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            cartSidebar.classList.add('open');
+            document.body.classList.add('cart-open');
+        }
+
+        closeCart() {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            cartSidebar.classList.remove('open');
+            document.body.classList.remove('cart-open');
+        }
+
+
         handleCepInput(event) {
             const cepInput = event.target;
-            let value = cepInput.value.replace(/\D/g, ''); // Remove tudo que não for dígito
+            let value = cepInput.value.replace(/\D/g, '');
             value = value.replace(/^(\d{5})(\d)/, '$1-$2');
             cepInput.value = value;
             
             const cepMessage = document.getElementById('cep-message');
 
-            // Se o CEP tem 8 dígitos, busca o endereço
             if (value.replace('-', '').length === 8) {
                 this.fetchAddress(value);
             } else {
@@ -202,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 3.3 - Função da API para buscar o endereço via ViaCEP
         async fetchAddress(cep) {
             const cepMessage = document.getElementById('cep-message');
             cepMessage.textContent = 'Buscando...';
@@ -216,12 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const data = await response.json();
 
-                // Retorno se CEP não for encontrado
                 if (data.erro) {
                     cepMessage.textContent = 'CEP não encontrado. Preencha manualmente.';
                     this.clearAddressForm();
                 } else {
-                    // Retorno do CEP encontrado
                     cepMessage.textContent = 'Endereço encontrado!';
                     document.getElementById('rua').value = data.logradouro;
                     document.getElementById('bairro').value = data.bairro;
@@ -229,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('uf').value = data.uf;
                     document.getElementById('numero').focus(); 
                 }
-            // Retorno caso ocorra erro de rede 
             } catch (error) {
                 console.error("Erro ao buscar CEP:", error);
                 cepMessage.textContent = 'Erro ao buscar CEP. Tente novamente ou preencha manualmente.';
@@ -241,7 +250,36 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('bairro').value = '';
             document.getElementById('cidade').value = '';
             document.getElementById('uf').value = '';
+            document.getElementById('cep').value = '';
         }
+
+        // Novas funções para a finalização da compra
+        finalizePurchase(event) {
+            event.preventDefault(); // Previne o recarregamento da página
+
+            if (this.cart.length === 0) {
+                alert("Seu carrinho está vazio!");
+                return;
+            }
+
+            this.showSuccessMessage();
+            this.closeCart();
+
+            // Limpa o carrinho e o formulário
+            this.cart = [];
+            this.renderCart();
+            document.getElementById('checkout-form').reset();
+            this.clearAddressForm();
+        }
+
+        showSuccessMessage() {
+            document.getElementById('purchase-success-overlay').classList.remove('hidden');
+        }
+
+        hideSuccessMessage() {
+            document.getElementById('purchase-success-overlay').classList.add('hidden');
+        }
+
     }
 
     new ECommerce();
